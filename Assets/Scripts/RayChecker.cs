@@ -70,6 +70,8 @@ public class RayChecker : MonoBehaviour
         }
         return nohit;
     }
+
+    
     void RaycastWrap(Vector3 pos, Vector3 rot, Node rootnode)
     {
         for (int i = -1; i < 2; i++)

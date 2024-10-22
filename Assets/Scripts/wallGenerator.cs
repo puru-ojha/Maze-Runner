@@ -12,8 +12,10 @@ public class wallGenerator : MonoBehaviour
     private GameObject wall;
     [SerializeField]
     private GameObject fillers;
-    private Queue<GameObject[]> Wallqueue = new Queue<GameObject[]>();
-    private Queue<GameObject[]> Fillqueue = new Queue<GameObject[]>();
+    //private Queue<GameObject[]> Wallqueue = new Queue<GameObject[]>();
+    private List<GameObject[]> Wallqueue = new List<GameObject[]>();
+    //private Queue<GameObject[]> Fillqueue = new Queue<GameObject[]>();
+    private List<GameObject[]> Fillqueue = new List<GameObject[]>();
     List<int> index_list = new List<int>();
     public MapMaker mapmaker;
     int wallcount = 0;
@@ -137,20 +139,47 @@ public class wallGenerator : MonoBehaviour
         //Do Nothing
     }
 
-    void RemoveOlderWalls()
+    void RemoveOlderWalls(bool isBackwards = false)
     {
         //if the wallcount is more than 3 remove old parts
+        if (isBackwards)
+        {
+            int Total = Wallqueue.Count;
+            GameObject[] lastwall = Wallqueue[Total - 1];
+            Wallqueue.RemoveAt(Total - 1);
+            foreach (var f in lastwall)
+            {
+                Destroy(f);
+            }
+            wallcount -= 1;
+            if (curr > 2)
+            {
+                int TotalFill = Fillqueue.Count;
+                GameObject[] lastfiller = Fillqueue[TotalFill - 1];
+                Fillqueue.RemoveAt(TotalFill - 1);
+                //Debug.Log("Dequefills runs");
+                foreach (var f in lastfiller)
+                {
+                    Destroy(f);
+                    //Debug.Log("it destroys");
+                }
+            }
+        }
         if (wallcount >2)
         {
-            foreach (var f in Wallqueue.Dequeue())
+            GameObject[] lastwall = Wallqueue[0];
+            Wallqueue.RemoveAt(0);
+            foreach (var f in lastwall)
             {
                 Destroy(f);
             }
             wallcount -= 1;
             if ( curr > 2)
             {
+                GameObject[] lastfiller = Fillqueue[0];
+                Fillqueue.RemoveAt(0);
                 //Debug.Log("Dequefills runs");
-                foreach (var f in Fillqueue.Dequeue())
+                foreach (var f in lastfiller)
                 {
                     Destroy(f);
                     //Debug.Log("it destroys");
@@ -176,7 +205,8 @@ public class wallGenerator : MonoBehaviour
             PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);   
             
         }
-        Wallqueue.Enqueue(wallsArray);
+        //Wallqueue.Enqueue(wallsArray);
+        Wallqueue.Add(wallsArray);
         curr += 1;
         wallcount += 1;
         if (curr > 1)
@@ -199,7 +229,8 @@ public class wallGenerator : MonoBehaviour
                 */
             }
         }
-        Fillqueue.Enqueue(fillersArray);
+        //Fillqueue.Enqueue(fillersArray);
+        Fillqueue.Add(fillersArray);
         RemoveOlderWalls();
     }
 
@@ -230,7 +261,14 @@ public class wallGenerator : MonoBehaviour
             FirstParent = FirstParent.GetChild(int.Parse(current.name));
             if (FirstParent != null)
             {
+                if (FirstParent.Children.Count == 0)
+                {
                 wallSpawner(FirstParent);
+                }
+                else
+                {
+                    wallSpawnerBackwards(FirstParent);
+                }
             }
             PreviousBox = current;
             Debug.Log("Player is moving Forward");
@@ -265,7 +303,7 @@ public class wallGenerator : MonoBehaviour
             PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);
 
         }
-        Wallqueue.Enqueue(wallsArray);
+        Wallqueue.Add(wallsArray);
         curr += 1;
         wallcount += 1;
         if (curr > 1)
@@ -288,8 +326,8 @@ public class wallGenerator : MonoBehaviour
                 */
             }
         }
-        Fillqueue.Enqueue(fillersArray);
-        //RemoveOlderWalls();
+        Fillqueue.Add(fillersArray);
+        RemoveOlderWalls(true);
     }
 
 

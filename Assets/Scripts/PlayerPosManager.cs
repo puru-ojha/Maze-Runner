@@ -52,7 +52,7 @@ public class PlayerPosManager : MonoBehaviour
 
     void movePlayer(string name)
     {
-        int angle = int.Parse( name)*90;
+        int angle = int.Parse(name)*90;
         //Debug.Log("The angle for movement is " + angle);
         //Debug.Log("BEfore movement position is " + PlayerPos);
         PlayerDir = PlayerDir + new Vector3(0,angle,0);
