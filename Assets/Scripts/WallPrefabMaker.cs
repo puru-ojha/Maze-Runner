@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WallPrefabMaker : MonoBehaviour
 {
+    /*
     // This scripts allows you to change the length and width of the walls prefabs.
     [SerializeField]
     GameObject Wall;
@@ -15,4 +16,5 @@ public class WallPrefabMaker : MonoBehaviour
     }
 
     // Update is called once per frame
+    */
 }

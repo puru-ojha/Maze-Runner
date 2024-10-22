@@ -14,13 +14,15 @@ public class PlayerPosManager : MonoBehaviour
     [HideInInspector]
     public static Vector3 PlayerDir { get; private set; }
     List<int> indicesCopy;
-    string last;
-    string secondLast;
+    //public static string last { get; private set; }
+    //string secondLast;
     public bool Forward = true;
+    public static List<string> colliders = new List<string>();
+    public static int count = 0;
     // Start is called before the first frame update
     void Start()
     {
-        PlayerPos = player.transform.position;
+        PlayerPos = new Vector3(player.transform.position.x,0f,player.transform.position.z);
         PlayerDir = player.transform.rotation.eulerAngles;
         
         //new Vector3(0f, player.transform.rotation.y,0f);
@@ -30,10 +32,10 @@ public class PlayerPosManager : MonoBehaviour
     public void collisionListener(Collider current)
     {
         
-        
-        Debug.Log("The current collider is " + current.name + " the last name is " + last + " The previous name is " + secondLast);
         if (Forward)
         {
+            colliders.Add(current.name);
+            count += 1;
             movePlayer(current.name);
             //previous = current;
             Debug.Log("Forward in playerpos");
@@ -41,16 +43,19 @@ public class PlayerPosManager : MonoBehaviour
         
         else
         {
-            Debug.Log("For backward the current name is " + current.name + " The previous name is " + secondLast);
-            movePlayerbackwards(current.name);
-            movePlayerbackwards(secondLast);
+            //Debug.Log("For backward the current name is " + current.name + " The previous name is " + secondLast);
+            movePlayerbackwards(colliders[count-1]);
+            movePlayerbackwards(colliders[count-2]);
+            Debug.Log("The last collider is " + colliders[count - 1] + " the second last collider is " + colliders[count - 2]);
+            colliders.RemoveAt(colliders.Count - 1);
+            count -= 1;
             //Debug.Log("backward in playerpos");
         }
-        secondLast = last;
-        last = current.name;
+        //secondLast = last;
+        //last = current.name;
     }
 
-    void movePlayer(string name)
+    public static void movePlayer(string name)
     {
         int angle = int.Parse( name)*90;
         //Debug.Log("The angle for movement is " + angle);

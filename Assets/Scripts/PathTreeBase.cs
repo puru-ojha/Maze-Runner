@@ -11,11 +11,13 @@ public class PathTreeBase
 
     public PathTreeBase(int ind)
     {
+        Debug.Log("FirstConstructorCalled");
         this.index = ind;
     }
     
     public PathTreeBase(int ind, PathTreeBase parent)
     {
+        Debug.Log("SecondCOnstructotr CAllses");
         this.index = ind;
         this.parent = parent;
         parent.Children.Add(this);

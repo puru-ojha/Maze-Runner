@@ -27,10 +27,9 @@ public class wallGenerator : MonoBehaviour
         rot = PlayerPosManager.PlayerDir;
         //mapmaker = gameObject.GetComponent<MapMaker>();
         //chosen = playerposManager.chosenIndex;
-        //Debug.Log("FirstCall");
         FirstParent = new PathTreeBase(00);
         wallSpawner(FirstParent);
-        //Debug.Log("SecondCall");
+
     }
 
     void Update()
@@ -51,7 +50,7 @@ public class wallGenerator : MonoBehaviour
 
     public GameObject InstantiateMethod(int index)
     {
-        
+        //Debug.Log("InstatiateMethodsisCalled");
         pos = PlayerPosManager.PlayerPos;
         rot = PlayerPosManager.PlayerDir;
         GameObject thiswall = Instantiate(wall,pos + Quaternion.Euler(new Vector3(0, rot.y + 90 * index, 0f))*Vector3.forward * Variables.instance.pathwid / 2, Quaternion.Euler(new Vector3(0,rot.y + 90 *index, 0f)));
@@ -162,44 +161,59 @@ public class wallGenerator : MonoBehaviour
     }
     void wallSpawner(PathTreeBase BaseNode)
     {
-        List<int> ind = mapmaker.DirectionChoser();
-        int indcount = ind.Count;
-        GameObject[] wallsArray = new GameObject[indcount];
-        GameObject[] fillersArray = new GameObject[3 - indcount];
-        //Debug.Log("indcount is  " + indcount);
-        for (int i = 0; i < indcount; i++)
+        if (BaseNode.Children.Count != 0)
         {
-            index_list.Add(ind[i]);
-            wallsArray[i] = InstantiateMethod(ind[i]);
-            //Debug.Log("One child is created");
-            //These lines are here to make the PathTreeBase
-            PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);   
-            
-        }
-        Wallqueue.Enqueue(wallsArray);
-        curr += 1;
-        wallcount += 1;
-        if (curr > 1)
-        {
-            if (ind.Count == 1)
+            Debug.Log(BaseNode.Children);
+            int childcount = BaseNode.Children.Count;
+            GameObject[] wallsArray = new GameObject[childcount];
+            GameObject[] fillersArray = new GameObject[3 - childcount];
+            for (int i = 0; i < childcount; i++)
             {
-                fillersArray = InstantiateFillersForSingle(ind[0]);
-            }
-            else if (ind.Count == 2)
-            {
-                fillersArray = InstantiateFillersFOrDouble(ind[0], ind[1]);
-            }
-            else if (ind.Count == 3)
-            {
-                // This code is writtent so that there is something to remove when three options are there
-                /*
-                GameObject[] temp = new GameObject[1];
-                temp[0] = fillers;
-                fillersArray = temp;
-                */
+                wallsArray[i] = InstantiateMethod(BaseNode.GetChild(i).index);
             }
         }
-        Fillqueue.Enqueue(fillersArray);
+        else
+        {
+            List<int> ind = mapmaker.DirectionChoser();
+            int indcount = ind.Count;
+            GameObject[] wallsArray = new GameObject[indcount];
+            GameObject[] fillersArray = new GameObject[3 - indcount];
+            Debug.Log("indcount is  " + indcount);
+            for (int i = 0; i < indcount; i++)
+            {
+                index_list.Add(ind[i]);
+                wallsArray[i] = InstantiateMethod(ind[i]);
+                Debug.Log("One child is created");
+                //These lines are here to make the PathTreeBase
+                PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);
+
+            }
+            Wallqueue.Enqueue(wallsArray);
+            curr += 1;
+            wallcount += 1;
+            if (curr > 1)
+            {
+                if (ind.Count == 1)
+                {
+                    fillersArray = InstantiateFillersForSingle(ind[0]);
+                }
+                else if (ind.Count == 2)
+                {
+                    fillersArray = InstantiateFillersFOrDouble(ind[0], ind[1]);
+                }
+                else if (ind.Count == 3)
+                {
+                    // This code is writtent so that there is something to remove when three options are there
+                    /*
+                    GameObject[] temp = new GameObject[1];
+                    temp[0] = fillers;
+                    fillersArray = temp;
+                    */
+                }
+            }
+            Fillqueue.Enqueue(fillersArray);
+        }
+
         RemoveOlderWalls();
     }
 
@@ -241,12 +255,15 @@ public class wallGenerator : MonoBehaviour
             wallSpawnerBackwards(FirstParent.parent.parent);
             FirstParent = FirstParent.parent;
             //We want to spawn it's parent's parent's children
+            // To reset the player to its parent's position
+            PlayerPosManager.movePlayer(PlayerPosManager.colliders[PlayerPosManager.count-1]);
 
         }
     }
 
     void wallSpawnerBackwards(PathTreeBase BaseNode)
     {
+        Debug.Log("The place from where the backward spawning is taking place is " + PlayerPosManager.PlayerPos + " And Direction is " + PlayerPosManager.PlayerDir);
         List<int> ind = new List<int>();
         foreach (var ch in BaseNode.Children)
         {
@@ -262,7 +279,7 @@ public class wallGenerator : MonoBehaviour
             wallsArray[i] = InstantiateMethod(ind[i]);
             //Debug.Log("One child is created");
             //These lines are here to make the PathTreeBase
-            PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);
+            PathTreeBase NewChild = new PathTreeBase(ind[i], BaseNode);        //Why new nodes are being created
 
         }
         Wallqueue.Enqueue(wallsArray);
